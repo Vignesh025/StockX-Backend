@@ -1,4 +1,4 @@
-@StockX.API_HostAddress = http://localhost:5142
+@StockX.API_HostAddress = http://localhost:5052
 
 GET {{StockX.API_HostAddress}}/weatherforecast/
 Accept: application/json
