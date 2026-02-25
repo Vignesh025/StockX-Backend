@@ -1,6 +1,7 @@
 using StockX.Core.Entities;
+using StockX.Core.Interfaces.Repositories;
 
-namespace StockX.Core.Interfaces;
+namespace StockX.Core.Interfaces.Persistence;
 
 public interface IUnitOfWork : IAsyncDisposable
 {
