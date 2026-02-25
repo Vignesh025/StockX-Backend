@@ -2,7 +2,7 @@ using StockX.Core.Enums;
 
 namespace StockX.Core.DTOs.Admin;
 
-public sealed record UserManagementDto(
+public sealed record AdminUserListItem(
     Guid UserId,
     string Name,
     string Email,

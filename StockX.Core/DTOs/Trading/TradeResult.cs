@@ -1,10 +1,10 @@
-using StockX.Core.DTOs.Wallet;
+using StockX.Core.Entities;
 
 namespace StockX.Core.DTOs.Trading;
 
-public sealed record TradeResponse(
+public sealed record TradeResult(
     bool Success,
-    TransactionDto Transaction,
+    Transaction Transaction,
     decimal NewBalance,
     string Message);
 

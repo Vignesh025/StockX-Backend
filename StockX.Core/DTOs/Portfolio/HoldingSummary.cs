@@ -1,10 +1,10 @@
 namespace StockX.Core.DTOs.Portfolio;
 
-public sealed record HoldingDto(
+public sealed record HoldingSummary(
     string Symbol,
     string Name,
     decimal Quantity,
-    decimal AvgCostBasis,
+    decimal AverageCostBasis,
     decimal CurrentPrice,
     decimal CurrentValue,
     decimal ProfitLoss,

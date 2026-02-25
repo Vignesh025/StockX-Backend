@@ -1,6 +1,6 @@
 namespace StockX.Core.DTOs.Wallet;
 
-public sealed record WalletBalanceDto(
+public sealed record WalletBalanceSummary(
     decimal Balance,
     DateTime LastUpdated);
 
