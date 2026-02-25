@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace StockX.Core.Enums;
 
 [JsonConverter(typeof(JsonStringEnumMemberConverter))]
-public enum TransactionStatus
+public enum PaymentIntentStatus
 {
     [EnumMember(Value = "PENDING")]
     Pending,
@@ -13,6 +13,9 @@ public enum TransactionStatus
     Completed,
 
     [EnumMember(Value = "FAILED")]
-    Failed
+    Failed,
+
+    [EnumMember(Value = "CANCELED")]
+    Canceled
 }
 
