@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 
-namespace StockX.Core.Interfaces;
+namespace StockX.Core.Interfaces.Repositories;
 
 public interface IRepository<TEntity> where TEntity : class
 {
