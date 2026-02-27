@@ -1,22 +1,15 @@
 using System.Security.Claims;
-using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace StockX.API.Middleware;
 
 public sealed class JwtMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly ILogger<JwtMiddleware> _logger;
 
-    public JwtMiddleware(
-        RequestDelegate next,
-        ILogger<JwtMiddleware> logger)
+    public JwtMiddleware(RequestDelegate next)
     {
         _next = next;
-        _logger = logger;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -28,13 +21,11 @@ public sealed class JwtMiddleware
         {
             var token = authHeader["Bearer ".Length..].Trim();
 
-            if (!string.IsNullOrWhiteSpace(token))
+            if (Guid.TryParse(token, out var userId))
             {
-                // MVP placeholder: treat any bearer token as authenticated.
                 var claims = new List<Claim>
                 {
-                    new(ClaimTypes.NameIdentifier, "placeholder"),
-                    new(ClaimTypes.Name, "placeholder")
+                    new(ClaimTypes.NameIdentifier, userId.ToString())
                 };
 
                 var identity = new ClaimsIdentity(claims, "Bearer");
