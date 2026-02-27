@@ -13,11 +13,14 @@ public sealed class AlpacaApiClient : IAlpacaService
     {
         _httpClient = httpClient;
 
-        _baseUrl = configuration["ALPACA_BASE_URL"] ??
+        _baseUrl = configuration["Alpaca:BaseUrl"] ??
+                   configuration["ALPACA_BASE_URL"] ??
                    "https://paper-api.alpaca.markets";
 
-        var apiKey = configuration["ALPACA_API_KEY"];
-        var secretKey = configuration["ALPACA_SECRET_KEY"];
+        var apiKey = configuration["Alpaca:ApiKey"] ??
+                     configuration["ALPACA_API_KEY"];
+        var secretKey = configuration["Alpaca:SecretKey"] ??
+                        configuration["ALPACA_SECRET_KEY"];
 
         if (!string.IsNullOrWhiteSpace(apiKey))
         {

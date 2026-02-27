@@ -19,8 +19,12 @@ public sealed class StripePaymentService : IStripeService
     {
         _httpClient = httpClient;
 
-        _secretKey = configuration["STRIPE_SECRET_KEY"] ?? string.Empty;
-        _webhookSecret = configuration["STRIPE_WEBHOOK_SECRET"] ?? string.Empty;
+        _secretKey = configuration["Stripe:SecretKey"] ??
+                     configuration["STRIPE_SECRET_KEY"] ??
+                     string.Empty;
+        _webhookSecret = configuration["Stripe:WebhookSecret"] ??
+                         configuration["STRIPE_WEBHOOK_SECRET"] ??
+                         string.Empty;
 
         if (!string.IsNullOrWhiteSpace(_secretKey))
         {
