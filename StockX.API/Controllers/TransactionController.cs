@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using StockX.Core.DTOs.Wallet;
 using StockX.Core.Enums;
 using StockX.Core.Services.Interfaces;
@@ -23,8 +24,40 @@ public sealed class TransactionController : ControllerBase
         [FromQuery] int offset = 0,
         CancellationToken cancellationToken = default)
     {
-        // Placeholder user id for now.
-        return Unauthorized();
+        if (!Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+        {
+            return Unauthorized();
+        }
+
+        TransactionType? filterType = type.ToLowerInvariant() switch
+        {
+            "deposit" => TransactionType.Deposit,
+            "trade" => null, // include both buy and sell
+            "stock_buy" => TransactionType.StockBuy,
+            "stock_sell" => TransactionType.StockSell,
+            _ => null
+        };
+
+        var transactions = await _walletService.GetTransactionsAsync(
+            userId,
+            filterType,
+            limit,
+            offset,
+            cancellationToken);
+
+        var dtos = transactions
+            .Select(t => new TransactionDto(
+                t.TransactionId,
+                t.Type,
+                t.Amount,
+                t.StockSymbol,
+                t.Quantity,
+                t.PricePerShare,
+                t.Timestamp,
+                t.Status))
+            .ToList();
+
+        return Ok(dtos);
     }
 }
 

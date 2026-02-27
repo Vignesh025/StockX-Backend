@@ -71,8 +71,28 @@ public sealed class AuthController : ControllerBase
     [HttpGet("me")]
     public async Task<ActionResult<object>> Me(CancellationToken cancellationToken)
     {
-        // Placeholder: normally derive user id from JWT.
-        return Unauthorized();
+        if (!Guid.TryParse(User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier), out var userId))
+        {
+            return Unauthorized();
+        }
+
+        var user = await _authService.GetByIdAsync(userId, cancellationToken);
+
+        if (user is null)
+        {
+            return NotFound();
+        }
+
+        var wallet = await _walletService.GetWalletBalanceAsync(userId, cancellationToken);
+
+        return Ok(new
+        {
+            id = user.UserId,
+            name = user.Name,
+            email = user.Email,
+            role = user.Role,
+            walletBalance = wallet.Balance
+        });
     }
 }
 

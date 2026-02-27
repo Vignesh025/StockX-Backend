@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using StockX.Core.Services.Interfaces;
+using System.Security.Claims;
 
 namespace StockX.API.Controllers;
 
@@ -22,8 +23,18 @@ public sealed class WalletController : ControllerBase
     public async Task<ActionResult<object>> GetBalance(
         CancellationToken cancellationToken)
     {
-        // Placeholder user id for now.
-        return Unauthorized();
+        if (!Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+        {
+            return Unauthorized();
+        }
+
+        var wallet = await _walletService.GetWalletBalanceAsync(userId, cancellationToken);
+
+        return Ok(new
+        {
+            balance = wallet.Balance,
+            lastUpdated = wallet.LastUpdated
+        });
     }
 
     [HttpPost("deposit/initiate")]
@@ -31,8 +42,21 @@ public sealed class WalletController : ControllerBase
         [FromBody] DepositRequest request,
         CancellationToken cancellationToken)
     {
-        // Placeholder user id for now.
-        return Unauthorized();
+        if (!Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+        {
+            return Unauthorized();
+        }
+
+        var result = await _paymentService.InitiateDepositAsync(
+            userId,
+            request.Amount,
+            cancellationToken);
+
+        return Ok(new
+        {
+            checkoutUrl = result.CheckoutUrl,
+            paymentIntentId = result.PaymentIntentId
+        });
     }
 
     public sealed record DepositRequest(decimal Amount);
