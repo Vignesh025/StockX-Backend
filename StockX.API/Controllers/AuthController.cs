@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using StockX.Core.DTOs.Auth;
 using StockX.Core.Services.Interfaces;
+using StockX.Core.Interfaces; 
+
 
 namespace StockX.API.Controllers;
 
