@@ -20,12 +20,20 @@ public static class DependencyInjection
     {
         services.AddDbContext<ApplicationDbContext>(options =>
         {
-            var connectionString = configuration["DATABASE_URL"];
-
-            if (!string.IsNullOrWhiteSpace(connectionString))
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
+    
+            if (string.IsNullOrWhiteSpace(connectionString))
             {
-                options.UseNpgsql(connectionString);
+                throw new InvalidOperationException(
+                    "Connection string 'DefaultConnection' not found in configuration.");
             }
+            
+            options.UseNpgsql(connectionString, npgsqlOptions =>
+            {
+                npgsqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 3,
+                    maxRetryDelay: TimeSpan.FromSeconds(10));
+            });
         });
 
         services.AddScoped<IUserRepository, UserRepository>();
