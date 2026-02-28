@@ -54,7 +54,9 @@ public sealed class ApplicationDbContext : DbContext
             .IsRequired();
 
         entity.Property(u => u.Role)
-            .IsRequired();
+            .IsRequired()
+            .HasConversion<string>()
+            .HasMaxLength(50);
 
         entity.Property(u => u.IsActive)
             .HasDefaultValue(true);
@@ -145,10 +147,14 @@ public sealed class ApplicationDbContext : DbContext
             .HasMaxLength(32);
 
         entity.Property(t => t.Status)
-            .IsRequired();
+            .IsRequired()
+            .HasConversion<string>()
+            .HasMaxLength(50);  
 
         entity.Property(t => t.Type)
-            .IsRequired();
+            .IsRequired()
+            .HasConversion<string>()
+            .HasMaxLength(50);
 
         entity.Property(t => t.Timestamp)
             .IsRequired();
@@ -185,7 +191,9 @@ public sealed class ApplicationDbContext : DbContext
             .HasDefaultValue("USD");
 
         entity.Property(p => p.Status)
-            .IsRequired();
+            .IsRequired()
+            .HasConversion<string>()
+            .HasMaxLength(50);
 
         entity.Property(p => p.CreatedAt)
             .IsRequired();
