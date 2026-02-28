@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using StockX.Core.DTOs.Trading;
+using StockX.Core.DTOs.Wallet;
 using StockX.Core.Services.Interfaces;
 
 namespace StockX.API.Controllers;
@@ -34,7 +35,7 @@ public sealed class TradingController : ControllerBase
 
         return Ok(new TradeResponse(
             result.Success,
-            new Wallet.TransactionDto(
+            new TransactionDto(
                 result.Transaction.TransactionId,
                 result.Transaction.Type,
                 result.Transaction.Amount,
@@ -65,7 +66,7 @@ public sealed class TradingController : ControllerBase
 
         return Ok(new TradeResponse(
             result.Success,
-            new Wallet.TransactionDto(
+            new TransactionDto(
                 result.Transaction.TransactionId,
                 result.Transaction.Type,
                 result.Transaction.Amount,

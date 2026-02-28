@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using StockX.Core.DTOs.Auth;
 using StockX.Core.Services.Interfaces;
-using StockX.Core.Interfaces; 
-
+using StockX.Core.Interfaces;
 
 namespace StockX.API.Controllers;
 
@@ -73,7 +73,7 @@ public sealed class AuthController : ControllerBase
     [HttpGet("me")]
     public async Task<ActionResult<object>> Me(CancellationToken cancellationToken)
     {
-        if (!Guid.TryParse(User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier), out var userId))
+        if (!Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
         {
             return Unauthorized();
         }
