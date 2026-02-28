@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace StockX.Core.Enums;
 
-[JsonConverter(typeof(JsonStringEnumMemberConverter))]
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum PaymentIntentStatus
 {
     [EnumMember(Value = "PENDING")]
