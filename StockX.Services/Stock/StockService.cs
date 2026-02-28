@@ -1,10 +1,10 @@
 using StockX.Core.DTOs.Stock;
-using StockX.Core.Entities;
 using StockX.Core.Interfaces.Persistence;
 using StockX.Core.Interfaces.Repositories;
 using StockX.Core.Services.Interfaces;
 using StockX.Infrastructure.Caching;
 using StockX.Infrastructure.External.AlpacaApi;
+using StockEntity = StockX.Core.Entities.Stock;
 
 namespace StockX.Services.Stock;
 
@@ -27,7 +27,7 @@ public sealed class StockService : IStockService
         _cacheService = cacheService;
     }
 
-    public async Task<IReadOnlyList<Stock>> SearchStocksAsync(
+    public async Task<IReadOnlyList<StockEntity>> SearchStocksAsync(
         string query,
         int limit,
         CancellationToken cancellationToken = default)
