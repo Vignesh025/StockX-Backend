@@ -37,11 +37,13 @@ public sealed class ExceptionHandlingMiddleware
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             context.Response.ContentType = "application/json";
 
-            var payload = JsonSerializer.Serialize(new
+            var errorResponse = new
             {
                 error = "An unexpected error occurred.",
                 traceId = context.TraceIdentifier
-            });
+            };
+
+            var payload = JsonSerializer.Serialize(errorResponse);
 
             await context.Response.WriteAsync(payload);
         }

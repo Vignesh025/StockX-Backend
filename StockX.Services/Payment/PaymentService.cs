@@ -75,14 +75,6 @@ public sealed class PaymentService : IPaymentService
             paymentIntent.Currency);
     }
 
-    public Task HandleStripeWebhookAsync(
-        string payload,
-        string signatureHeader,
-        CancellationToken cancellationToken = default)
-    {
-        return Task.CompletedTask;
-    }
-
     public async Task<PaymentIntent?> GetPaymentIntentAsync(
         string intentId,
         CancellationToken cancellationToken = default)

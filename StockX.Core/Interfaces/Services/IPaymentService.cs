@@ -11,11 +11,6 @@ public interface IPaymentService
         decimal amount,
         CancellationToken cancellationToken = default);
 
-    Task HandleStripeWebhookAsync(
-        string payload,
-        string signatureHeader,
-        CancellationToken cancellationToken = default);
-
     Task<PaymentIntent?> GetPaymentIntentAsync(
         string intentId,
         CancellationToken cancellationToken = default);

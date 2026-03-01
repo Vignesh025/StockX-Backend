@@ -13,19 +13,5 @@ public sealed class PaymentController : ControllerBase
     {
         _paymentService = paymentService;
     }
-
-    [HttpPost("webhook/stripe")]
-    public async Task<IActionResult> StripeWebhook(
-        [FromBody] string payload,
-        [FromHeader(Name = "Stripe-Signature")] string signature,
-        CancellationToken cancellationToken)
-    {
-        await _paymentService.HandleStripeWebhookAsync(
-            payload,
-            signature,
-            cancellationToken);
-
-        return Ok();
-    }
 }
 

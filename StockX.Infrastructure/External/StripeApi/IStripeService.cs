@@ -5,11 +5,6 @@ public sealed record StripeCheckoutSession(
     string CheckoutUrl,
     string? PaymentIntentId);
 
-public sealed record StripeWebhookEvent(
-    string EventId,
-    string Type,
-    string? PaymentIntentId);
-
 public interface IStripeService
 {
     Task<StripeCheckoutSession> CreateDepositCheckoutSessionAsync(
@@ -19,12 +14,5 @@ public interface IStripeService
         string successUrl,
         string cancelUrl,
         CancellationToken cancellationToken = default);
-
-    void VerifyWebhookSignature(
-        string payload,
-        string signatureHeader);
-
-    StripeWebhookEvent ParseWebhookEvent(
-        string payload);
 }
 
