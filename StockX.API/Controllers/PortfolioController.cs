@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using StockX.Core.DTOs.Portfolio;
@@ -6,6 +7,7 @@ using StockX.Core.Services.Interfaces;
 namespace StockX.API.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public sealed class PortfolioController : ControllerBase
 {

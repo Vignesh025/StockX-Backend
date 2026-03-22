@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using StockX.Core.DTOs.Auth;
@@ -70,6 +71,7 @@ public sealed class AuthController : ControllerBase
         return Ok(new AuthResponse(token, authUser));
     }
 
+    [Authorize]
     [HttpGet("me")]
     public async Task<ActionResult<object>> Me(CancellationToken cancellationToken)
     {

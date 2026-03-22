@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StockX.Core.Services.Interfaces;
 using System.Security.Claims;
@@ -5,7 +6,8 @@ using System.Security.Claims;
 namespace StockX.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Authorize]
+[Route("api/wallet")]
 public sealed class WalletController : ControllerBase
 {
     private readonly IWalletService _walletService;

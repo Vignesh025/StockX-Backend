@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StockX.Core.DTOs.Admin;
 using StockX.Core.DTOs.Common;
@@ -6,6 +7,7 @@ using StockX.Core.Services.Interfaces;
 namespace StockX.API.Controllers;
 
 [ApiController]
+[Authorize(Roles = "Admin")]
 [Route("api/[controller]")]
 public sealed class AdminController : ControllerBase
 {
