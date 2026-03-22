@@ -167,6 +167,7 @@ public sealed class ApplicationDbContext : DbContext
         entity.HasOne(t => t.Stock)
             .WithMany(s => s.Transactions)
             .HasForeignKey(t => t.StockSymbol)
+            .IsRequired(false)
             .OnDelete(DeleteBehavior.Restrict);
     }
 
