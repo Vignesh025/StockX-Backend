@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.Configuration;
 using StockX.Infrastructure.External.AlpacaApi.Models;
 
@@ -8,14 +9,21 @@ public sealed class AlpacaApiClient : IAlpacaService
 {
     private readonly HttpClient _httpClient;
     private readonly string _baseUrl;
+    private readonly string _dataUrl;
 
     public AlpacaApiClient(HttpClient httpClient, IConfiguration configuration)
     {
         _httpClient = httpClient;
 
+        // Trading API  (orders, assets, positions, etc.)
         _baseUrl = configuration["Alpaca:BaseUrl"] ??
                    configuration["ALPACA_BASE_URL"] ??
                    "https://paper-api.alpaca.markets";
+
+        // Market Data API (quotes, bars, trades, etc.)
+        _dataUrl = configuration["Alpaca:DataUrl"] ??
+                   configuration["ALPACA_DATA_URL"] ??
+                   "https://data.alpaca.markets";
 
         var apiKey = configuration["Alpaca:ApiKey"] ??
                      configuration["ALPACA_API_KEY"];
@@ -36,6 +44,7 @@ public sealed class AlpacaApiClient : IAlpacaService
     public async Task<IReadOnlyList<AlpacaAsset>> GetAssetsAsync(
         CancellationToken cancellationToken = default)
     {
+        // Assets list lives on the trading API
         var url = $"{_baseUrl}/v2/assets?status=active&asset_class=us_equity";
 
         var response = await _httpClient.GetAsync(url, cancellationToken);
@@ -55,7 +64,9 @@ public sealed class AlpacaApiClient : IAlpacaService
         }
 
         var encodedSymbol = Uri.EscapeDataString(symbol.ToUpperInvariant());
-        var url = $"{_baseUrl}/v2/stocks/{encodedSymbol}/quotes/latest";
+
+        // Quotes live on the market DATA API, not the trading API
+        var url = $"{_dataUrl}/v2/stocks/{encodedSymbol}/quotes/latest";
 
         var response = await _httpClient.GetAsync(url, cancellationToken);
 
@@ -73,25 +84,34 @@ public sealed class AlpacaApiClient : IAlpacaService
 
         return new AlpacaQuote
         {
-            Symbol = encodedSymbol,
-            BidPrice = quoteWrapper.Quote.BidPrice,
-            AskPrice = quoteWrapper.Quote.AskPrice,
-            LastPrice = quoteWrapper.Quote.AskPrice,
+            Symbol    = encodedSymbol,
+            BidPrice  = quoteWrapper.Quote.BidPrice,
+            AskPrice  = quoteWrapper.Quote.AskPrice,
+            // Use mid-point as the effective "last price" so buy/sell use a fair value
+            LastPrice = (quoteWrapper.Quote.BidPrice + quoteWrapper.Quote.AskPrice) / 2m,
             Timestamp = quoteWrapper.Quote.Timestamp
         };
     }
 
+    // ── Deserialization models ────────────────────────────────────────────────
+    // Alpaca returns abbreviated field names ("ap", "bp", "t") — the
+    // [JsonPropertyName] attributes tell System.Text.Json how to map them.
+
     private sealed class LatestQuoteResponse
     {
+        [JsonPropertyName("quote")]
         public LatestQuote? Quote { get; set; }
     }
 
     private sealed class LatestQuote
     {
+        [JsonPropertyName("bp")]
         public decimal BidPrice { get; set; }
 
+        [JsonPropertyName("ap")]
         public decimal AskPrice { get; set; }
 
+        [JsonPropertyName("t")]
         public DateTime Timestamp { get; set; }
     }
 }
