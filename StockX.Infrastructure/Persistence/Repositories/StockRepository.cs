@@ -33,5 +33,36 @@ public sealed class StockRepository : Repository<Stock>, IStockRepository
             .Take(limit)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<int> CountAsync(CancellationToken cancellationToken = default)
+        => await DbContext.Stocks.CountAsync(cancellationToken);
+
+    public async Task<int> UpsertRangeAsync(
+        IEnumerable<Stock> stocks,
+        CancellationToken cancellationToken = default)
+    {
+        var incoming = stocks.ToList();
+        if (incoming.Count == 0) return 0;
+
+        // Fetch existing symbols in one round-trip
+        var symbols = incoming.Select(s => s.Symbol).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var existing = await DbContext.Stocks
+            .Where(s => symbols.Contains(s.Symbol))
+            .Select(s => s.Symbol)
+            .ToHashSetAsync(StringComparer.OrdinalIgnoreCase, cancellationToken);
+
+        var newStocks = incoming
+            .Where(s => !existing.Contains(s.Symbol))
+            .GroupBy(s => s.Symbol, StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.First())
+            .ToList();
+
+        if (newStocks.Count == 0) return 0;
+
+        await DbContext.Stocks.AddRangeAsync(newStocks, cancellationToken);
+        await DbContext.SaveChangesAsync(cancellationToken);
+        return newStocks.Count;
+    }
 }
+
 

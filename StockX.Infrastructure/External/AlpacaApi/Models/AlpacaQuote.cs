@@ -10,6 +10,9 @@ public sealed class AlpacaQuote
 
     public decimal LastPrice { get; set; }
 
+    /// <summary>Day-over-day change % from previous close. Null if unavailable.</summary>
+    public decimal? ChangePercent { get; set; }
+
     public DateTime Timestamp { get; set; }
 }
 

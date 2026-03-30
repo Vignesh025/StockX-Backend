@@ -21,15 +21,21 @@ public static class StockSeeder
         var alpaca = scope.ServiceProvider.GetRequiredService<IAlpacaService>();
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<ApplicationDbContext>>();
 
-        // Only seed if the table is empty
-        var hasStocks = await db.Stocks.AnyAsync(cancellationToken);
-        if (hasStocks)
+        // Only seed if the table has fewer than 500 stocks — this threshold
+        // catches both an empty table and a previous partial/failed seed.
+        const int MinStocksThreshold = 500;
+        var stockCount = await db.Stocks.CountAsync(cancellationToken);
+        if (stockCount >= MinStocksThreshold)
         {
-            logger.LogInformation("Stocks table already has data — skipping seeding.");
+            logger.LogInformation(
+                "Stocks table has {Count} rows — skipping seeding (threshold: {Min}).",
+                stockCount, MinStocksThreshold);
             return;
         }
 
-        logger.LogInformation("Stocks table is empty. Fetching assets from Alpaca to seed...");
+        logger.LogInformation(
+            "Stocks table has only {Count} rows (threshold: {Min}). Fetching assets from Alpaca...",
+            stockCount, MinStocksThreshold);
 
         IReadOnlyList<AlpacaAsset> assets;
         try
@@ -50,24 +56,36 @@ public static class StockSeeder
 
         var now = DateTime.UtcNow;
 
-        var stocks = assets
+        var incoming = assets
             .Where(a => !string.IsNullOrWhiteSpace(a.Symbol) && !string.IsNullOrWhiteSpace(a.Name))
-            .Select(a => new Stock
+            .GroupBy(a => a.Symbol.Trim().ToUpperInvariant())
+            .Select(g => new Stock
             {
-                Symbol = a.Symbol.Trim().ToUpperInvariant(),
-                Name = a.Name.Trim(),
-                Exchange = a.Exchange.Trim(),
-                AssetType = a.AssetType.Trim(),
+                Symbol             = g.Key,
+                Name               = g.First().Name.Trim(),
+                Exchange           = g.First().Exchange?.Trim() ?? string.Empty,
+                AssetType          = g.First().AssetType?.Trim() ?? string.Empty,
                 LastMetadataUpdate = now
             })
-            // Guard against duplicates in the Alpaca response
-            .GroupBy(s => s.Symbol)
-            .Select(g => g.First())
             .ToList();
 
-        await db.Stocks.AddRangeAsync(stocks, cancellationToken);
+        // Skip symbols that are already in the DB to avoid duplicate-key errors
+        var existingSymbols = await db.Stocks
+            .Select(s => s.Symbol)
+            .ToHashSetAsync(StringComparer.OrdinalIgnoreCase, cancellationToken);
+
+        var newStocks = incoming.Where(s => !existingSymbols.Contains(s.Symbol)).ToList();
+
+        if (newStocks.Count == 0)
+        {
+            logger.LogInformation("All fetched assets already exist in the database — no new rows inserted.");
+            return;
+        }
+
+        await db.Stocks.AddRangeAsync(newStocks, cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
 
-        logger.LogInformation("Seeded {Count} stocks into the database.", stocks.Count);
+        logger.LogInformation("Seeded {Count} new stocks into the database ({Total} total from Alpaca).",
+            newStocks.Count, incoming.Count);
     }
 }
