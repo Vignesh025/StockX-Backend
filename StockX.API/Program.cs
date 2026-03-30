@@ -50,8 +50,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 var app = builder.Build();
 
-// Seed the Stocks table on startup if it is empty
-await StockSeeder.SeedStocksAsync(app.Services);
+// Seed the Stocks table in the background (non-blocking).
+// If Alpaca is slow the app still starts up immediately.
+_ = Task.Run(async () =>
+{
+    try
+    {
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+        await StockSeeder.SeedStocksAsync(app.Services, cts.Token);
+    }
+    catch (Exception ex)
+    {
+        var logger = app.Services.GetService<ILoggerFactory>()?.CreateLogger("StockSeeder");
+        logger?.LogWarning(ex, "Background stock seeding failed — will retry next restart.");
+    }
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
