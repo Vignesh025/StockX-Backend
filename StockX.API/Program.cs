@@ -73,7 +73,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// Skip HTTPS redirection in the test environment (no TLS port available)
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseMiddleware<ErrorHandlingMiddleware>();
@@ -87,3 +91,5 @@ app.MapControllers();
 
 app.Run();
 
+// Expose Program to test project for WebApplicationFactory
+public partial class Program { }
