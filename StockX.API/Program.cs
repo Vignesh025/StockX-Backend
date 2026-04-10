@@ -74,7 +74,7 @@ _ = Task.Run(async () =>
 {
     try
     {
-        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(300));
         await StockSeeder.SeedStocksAsync(app.Services, cts.Token);
     }
     catch (Exception ex)
