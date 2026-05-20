@@ -17,7 +17,7 @@ public sealed class TokenService : ITokenService
     {
         _secret = configuration["Jwt:Secret"] ??
                   configuration["JWT_SECRET"] ??
-                  "development-secret-key";
+                  "development-secret-key-must-be-at-least-32-chars-long!";
 
         _expirationHours = int.TryParse(
             configuration["Jwt:ExpirationHours"] ?? configuration["JWT_EXPIRATION_HOURS"],

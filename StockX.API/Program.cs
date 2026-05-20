@@ -50,7 +50,7 @@ if (useForwardedHeaders)
 
 var jwtSecret = builder.Configuration["Jwt:Secret"] ??
                 builder.Configuration["JWT_SECRET"] ??
-                "development-secret-key";
+                "development-secret-key-must-be-at-least-32-chars-long!";
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
