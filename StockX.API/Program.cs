@@ -49,8 +49,7 @@ if (useForwardedHeaders)
 }
 
 var jwtSecret = builder.Configuration["Jwt:Secret"] ??
-                builder.Configuration["JWT_SECRET"] ??
-                "development-secret-key";
+                builder.Configuration["JWT_SECRET"] ;
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
