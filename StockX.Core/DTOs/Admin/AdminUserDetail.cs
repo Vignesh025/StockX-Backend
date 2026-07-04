@@ -10,6 +10,7 @@ public sealed record AdminUserDetail(
     string Email,
     UserRole Role,
     bool IsActive,
+    DateTime CreatedAt,
     decimal WalletBalance,
     PortfolioSummary PortfolioSummary,
     IReadOnlyList<Transaction> RecentTransactions);
