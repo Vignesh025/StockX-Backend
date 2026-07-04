@@ -8,5 +8,6 @@ public sealed record AdminUserListItem(
     string Email,
     UserRole Role,
     bool IsActive,
+    DateTime CreatedAt,
     decimal WalletBalance);
 
