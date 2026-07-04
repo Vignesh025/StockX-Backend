@@ -197,7 +197,10 @@ public sealed class StockService : IStockService
                     CurrentPrice:  price,
                     MarketCap:     null,
                     ChangePercent: snap.ChangePercent,
-                    LastUpdated:   snap.DailyBar?.Timestamp ?? DateTime.UtcNow);
+                    LastUpdated:   snap.LatestTrade?.Timestamp   // most recent trade (real-time during market hours)
+                                ?? snap.LatestQuote?.Timestamp  // or latest bid/ask quote
+                                ?? snap.DailyBar?.Timestamp     // or last daily bar (after-hours / holiday)
+                                ?? DateTime.UtcNow);
             },
             TimeSpan.FromMinutes(2),
             cancellationToken);
