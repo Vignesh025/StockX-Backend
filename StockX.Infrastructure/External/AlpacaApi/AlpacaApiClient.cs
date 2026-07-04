@@ -148,10 +148,44 @@ public sealed class AlpacaApiClient : IAlpacaService
             AskPrice     = snap.LatestQuote?.AskPrice ?? 0m,
             LastPrice    = snap.CurrentPrice,
             ChangePercent = snap.ChangePercent,
-            Timestamp    = snap.LatestQuote?.Timestamp
+            Timestamp    = snap.LatestTrade?.Timestamp
+                        ?? snap.LatestQuote?.Timestamp
                         ?? snap.DailyBar?.Timestamp
                         ?? DateTime.UtcNow,
         };
+    }
+
+    public async Task<IReadOnlyList<string>> GetMostActiveSymbolsAsync(
+        int top = 50,
+        CancellationToken cancellationToken = default)
+    {
+        top = Math.Clamp(top, 1, 100);
+        var url = $"{_dataUrl}/v1beta1/screener/stocks/most-actives?by=volume&top={top}";
+
+        try
+        {
+            var response = await _httpClient.GetAsync(url, cancellationToken);
+
+            if (!response.IsSuccessStatusCode)
+                return Array.Empty<string>();
+
+            var result = await response.Content
+                .ReadFromJsonAsync<MostActivesResponse>(cancellationToken: cancellationToken);
+
+            var symbols = result?.MostActives
+                ?.Where(e => !string.IsNullOrWhiteSpace(e.Symbol))
+                .Select(e => e.Symbol.ToUpperInvariant())
+                .ToList();
+
+            return symbols is { Count: > 0 }
+                ? symbols
+                : Array.Empty<string>();
+        }
+        catch
+        {
+            // Screener unavailable (closed market, plan restriction, network) — caller falls back
+            return Array.Empty<string>();
+        }
     }
 
     // ── Deserialization models ────────────────────────────────────────────────
@@ -174,6 +208,26 @@ public sealed class AlpacaApiClient : IAlpacaService
 
         [JsonPropertyName("t")]
         public DateTime Timestamp { get; set; }
+    }
+
+    // ── Screener models ───────────────────────────────────────────────────────
+
+    private sealed class MostActivesResponse
+    {
+        [JsonPropertyName("most_actives")]
+        public List<MostActiveEntry>? MostActives { get; set; }
+    }
+
+    private sealed class MostActiveEntry
+    {
+        [JsonPropertyName("symbol")]
+        public string Symbol { get; set; } = string.Empty;
+
+        [JsonPropertyName("volume")]
+        public long Volume { get; set; }
+
+        [JsonPropertyName("trade_count")]
+        public long TradeCount { get; set; }
     }
 }
 

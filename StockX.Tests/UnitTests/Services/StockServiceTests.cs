@@ -206,7 +206,7 @@ public sealed class StockServiceTests
         // Arrange
         var cached = new List<StockQuote>
         {
-            new StockQuote("AAPL", "Apple", "NASDAQ", 180m, null, 1.5m, DateTime.UtcNow)
+            new StockQuote("AAPL", "Apple", "NASDAQ", 180m, null, 1.5m, null, DateTime.UtcNow)
         };
 
         _cacheMock
@@ -271,6 +271,10 @@ public sealed class StockServiceTests
         };
 
         _alpacaMock
+            .Setup(a => a.GetMostActiveSymbolsAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<string>());
+
+        _alpacaMock
             .Setup(a => a.GetSnapshotsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(snapshots);
 
@@ -307,6 +311,10 @@ public sealed class StockServiceTests
         };
 
         _alpacaMock
+            .Setup(a => a.GetMostActiveSymbolsAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<string>());
+
+        _alpacaMock
             .Setup(a => a.GetSnapshotsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(snapshots);
 
@@ -333,6 +341,10 @@ public sealed class StockServiceTests
         {
             ["NVDA"] = BuildSnapshot(currentPrice: 900m, prevClose: 880m)
         };
+
+        _alpacaMock
+            .Setup(a => a.GetMostActiveSymbolsAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<string>());
 
         _alpacaMock
             .Setup(a => a.GetSnapshotsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
@@ -363,7 +375,7 @@ public sealed class StockServiceTests
     public async Task GetStockDetailsAsync_CachedValue_ReturnsCached()
     {
         // Arrange
-        var cached = new StockQuote("AAPL", "Apple", "NASDAQ", 180m, null, 1.5m, DateTime.UtcNow);
+        var cached = new StockQuote("AAPL", "Apple", "NASDAQ", 180m, null, 1.5m, null, DateTime.UtcNow);
 
         _cacheMock
             .Setup(c => c.GetOrCreateAsync(

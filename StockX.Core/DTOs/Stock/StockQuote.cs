@@ -7,5 +7,6 @@ public sealed record StockQuote(
     decimal CurrentPrice,
     decimal? MarketCap,
     decimal? ChangePercent,
+    long? DailyVolume,
     DateTime LastUpdated);
 

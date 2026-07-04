@@ -27,6 +27,15 @@ public interface IAlpacaService
     Task<AlpacaQuote?> GetLatestQuoteAsync(
         string symbol,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Returns the symbols of the most actively traded US stocks for the
+    /// current session using Alpaca's screener API, ordered by dollar volume.
+    /// Returns an empty list if the market is closed or the endpoint is unavailable.
+    /// </summary>
+    Task<IReadOnlyList<string>> GetMostActiveSymbolsAsync(
+        int top = 50,
+        CancellationToken cancellationToken = default);
 }
 
 

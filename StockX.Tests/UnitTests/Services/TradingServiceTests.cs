@@ -81,7 +81,7 @@ public sealed class TradingServiceTests
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var quote = new StockQuote("AAPL", "Apple", "NASDAQ", 180m, null, 1m, DateTime.UtcNow);
+        var quote = new StockQuote("AAPL", "Apple", "NASDAQ", 180m, null, 1m, null, DateTime.UtcNow);
 
         _stockServiceMock
             .Setup(s => s.GetStockDetailsAsync("AAPL", It.IsAny<CancellationToken>()))
@@ -105,7 +105,7 @@ public sealed class TradingServiceTests
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var quote = new StockQuote("AAPL", "Apple", "NASDAQ", 100m, null, 1m, DateTime.UtcNow);
+        var quote = new StockQuote("AAPL", "Apple", "NASDAQ", 100m, null, 1m, null, DateTime.UtcNow);
 
         _stockServiceMock
             .Setup(s => s.GetStockDetailsAsync("AAPL", It.IsAny<CancellationToken>()))
@@ -149,7 +149,7 @@ public sealed class TradingServiceTests
     {
         // Arrange
         var userId = Guid.NewGuid();
-        var quote = new StockQuote("AAPL", "Apple", "NASDAQ", 200m, null, 1m, DateTime.UtcNow);
+        var quote = new StockQuote("AAPL", "Apple", "NASDAQ", 200m, null, 1m, null, DateTime.UtcNow);
 
         _stockServiceMock
             .Setup(s => s.GetStockDetailsAsync("AAPL", It.IsAny<CancellationToken>()))
@@ -250,7 +250,7 @@ public sealed class TradingServiceTests
 
         _stockServiceMock
             .Setup(s => s.GetStockDetailsAsync("AAPL", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new StockQuote("AAPL", "Apple", "NASDAQ", 100m, null, 1m, DateTime.UtcNow));
+            .ReturnsAsync(new StockQuote("AAPL", "Apple", "NASDAQ", 100m, null, 1m, null, DateTime.UtcNow));
 
         _walletServiceMock
             .Setup(w => w.CalculateWalletBalanceAsync(userId, It.IsAny<CancellationToken>()))
@@ -312,7 +312,7 @@ public sealed class TradingServiceTests
 
         _stockServiceMock
             .Setup(s => s.GetStockDetailsAsync("AAPL", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new StockQuote("AAPL", "Apple", "NASDAQ", 150m, null, 1m, DateTime.UtcNow));
+            .ReturnsAsync(new StockQuote("AAPL", "Apple", "NASDAQ", 150m, null, 1m, null, DateTime.UtcNow));
 
         _walletServiceMock
             .Setup(w => w.CalculateWalletBalanceAsync(userId, It.IsAny<CancellationToken>()))
@@ -357,7 +357,7 @@ public sealed class TradingServiceTests
 
         _stockServiceMock
             .Setup(s => s.GetStockDetailsAsync("AAPL", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new StockQuote("AAPL", "Apple", "NASDAQ", 120m, null, 1m, DateTime.UtcNow));
+            .ReturnsAsync(new StockQuote("AAPL", "Apple", "NASDAQ", 120m, null, 1m, null, DateTime.UtcNow));
 
         _walletServiceMock
             .Setup(w => w.CalculateWalletBalanceAsync(userId, It.IsAny<CancellationToken>()))
@@ -420,7 +420,7 @@ public sealed class TradingServiceTests
 
         _stockServiceMock
             .Setup(s => s.GetStockDetailsAsync("AAPL", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new StockQuote("AAPL", "Apple", "NASDAQ", 120m, null, 1m, DateTime.UtcNow));
+            .ReturnsAsync(new StockQuote("AAPL", "Apple", "NASDAQ", 120m, null, 1m, null, DateTime.UtcNow));
 
         // Act
         var result = await _sut.GetPortfolioAsync(userId);
@@ -475,7 +475,7 @@ public sealed class TradingServiceTests
 
         _stockServiceMock
             .Setup(s => s.GetStockDetailsAsync("AAPL", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new StockQuote("AAPL", "Apple", "NASDAQ", 120m, null, 1m, DateTime.UtcNow));
+            .ReturnsAsync(new StockQuote("AAPL", "Apple", "NASDAQ", 120m, null, 1m, null, DateTime.UtcNow));
 
         // Act
         var result = await _sut.GetPortfolioAsync(userId);

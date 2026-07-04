@@ -97,10 +97,18 @@ public sealed class StockService : IStockService
         if (cached is not null)
             return cached;
 
-        // ── Curated list of top US large-cap stocks by market cap ─────────────
-        // Fetch all snapshots in ONE request, sort by price desc, take top `limit`.
-        // Note: BRK.B uses a slash in Alpaca (BRK/B) which breaks URLs — use SPY instead.
-        var topSymbols = new[]
+        // ── 1. Ask Alpaca's screener for today's most-active symbols ─────────
+        // The screener returns symbols ranked by trading volume for the current
+        // session. On weekends / holidays / plan restrictions it returns nothing,
+        // so we fall back to a broad seed universe of US large-cap stocks.
+        var liveSymbols = await _alpacaService.GetMostActiveSymbolsAsync(
+            top: Math.Max(limit * 3, 50),   // fetch 3× so we have room to filter
+            cancellationToken);
+
+        // ── 2. Fallback seed universe ─────────────────────────────────────────
+        // Used when the screener is unavailable (market closed / holiday).
+        // Kept broad so we always have enough to fill `limit` results.
+        var seedSymbols = new[]
         {
             "NVDA", "MSFT", "AAPL", "AMZN", "GOOGL", "META", "TSLA", "AVGO",
             "JPM",  "LLY",  "V",    "WMT",  "UNH",   "XOM",  "MA",   "COST",
@@ -109,13 +117,17 @@ public sealed class StockService : IStockService
             "QCOM", "TXN",  "GE",   "IBM",  "NOW",   "INTU", "SPY",  "QQQ",
         };
 
-        // Fetch all snapshots in a single API call
-        var snapshots = await _alpacaService.GetSnapshotsAsync(topSymbols, cancellationToken);
+        var symbolsToQuery = liveSymbols.Count > 0
+            ? liveSymbols
+            : (IReadOnlyList<string>)seedSymbols;
+
+        // ── 3. Fetch full snapshots in one batch call ─────────────────────────
+        var snapshots = await _alpacaService.GetSnapshotsAsync(symbolsToQuery, cancellationToken);
 
         var now = DateTime.UtcNow;
         var quotes = new List<StockQuote>();
 
-        foreach (var symbol in topSymbols)
+        foreach (var symbol in symbolsToQuery)
         {
             if (!snapshots.TryGetValue(symbol, out var snap))
                 continue;
@@ -135,12 +147,16 @@ public sealed class StockService : IStockService
                 CurrentPrice:  price,
                 MarketCap:     null,
                 ChangePercent: snap.ChangePercent,
+                DailyVolume:   snap.DailyBar?.Volume,
                 LastUpdated:   snap.DailyBar?.Timestamp ?? now));
         }
 
-        // Sort by price descending — higher-priced = more valuable stock
+        // Sort by dollar volume (price × shares traded) — the standard metric
+        // for "most active / top stocks". Falls back to price if volume is absent.
         var result = quotes
-            .OrderByDescending(q => q.CurrentPrice)
+            .OrderByDescending(q => q.CurrentPrice * (q.DailyVolume ?? 0) > 0
+                ? q.CurrentPrice * q.DailyVolume!.Value
+                : q.CurrentPrice)
             .Take(limit)
             .ToList();
 
@@ -197,6 +213,7 @@ public sealed class StockService : IStockService
                     CurrentPrice:  price,
                     MarketCap:     null,
                     ChangePercent: snap.ChangePercent,
+                    DailyVolume:   null,
                     LastUpdated:   snap.LatestTrade?.Timestamp   // most recent trade (real-time during market hours)
                                 ?? snap.LatestQuote?.Timestamp  // or latest bid/ask quote
                                 ?? snap.DailyBar?.Timestamp     // or last daily bar (after-hours / holiday)
