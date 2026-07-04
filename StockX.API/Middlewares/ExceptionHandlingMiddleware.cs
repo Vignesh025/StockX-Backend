@@ -37,9 +37,14 @@ public sealed class ExceptionHandlingMiddleware
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             context.Response.ContentType = "application/json";
 
+            var message = ex is InvalidOperationException || ex is ArgumentException
+                ? ex.Message
+                : "An unexpected error occurred.";
+
             var errorResponse = new
             {
-                error = "An unexpected error occurred.",
+                error = message,
+                message = message,
                 traceId = context.TraceIdentifier
             };
 

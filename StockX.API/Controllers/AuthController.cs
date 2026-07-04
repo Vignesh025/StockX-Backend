@@ -95,7 +95,8 @@ public sealed class AuthController : ControllerBase
             name = user.Name,
             email = user.Email,
             role = user.Role,
-            walletBalance = wallet.Balance
+            walletBalance = wallet.Balance,
+            createdAt = user.CreatedAt
         });
     }
 }
