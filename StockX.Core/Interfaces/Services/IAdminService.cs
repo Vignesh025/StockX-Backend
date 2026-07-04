@@ -17,5 +17,15 @@ public interface IAdminService
     Task<AdminUserDetail?> GetUserDetailAsync(
         Guid userId,
         CancellationToken cancellationToken = default);
+
+    Task<bool> SetActiveAsync(
+        Guid userId,
+        bool isActive,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> SetRoleAsync(
+        Guid userId,
+        UserRole role,
+        CancellationToken cancellationToken = default);
 }
 

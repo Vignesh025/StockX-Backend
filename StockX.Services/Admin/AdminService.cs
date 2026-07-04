@@ -2,6 +2,7 @@ using StockX.Core.DTOs.Admin;
 using StockX.Core.DTOs.Common;
 using StockX.Core.DTOs.Portfolio;
 using StockX.Core.Entities;
+using StockX.Core.Enums;
 using StockX.Core.Interfaces.Persistence;
 using StockX.Core.Interfaces.Repositories;
 using StockX.Core.Services.Interfaces;
@@ -74,6 +75,7 @@ public sealed class AdminService : IAdminService
                     user.Email,
                     user.Role,
                     user.IsActive,
+                    user.CreatedAt,
                     balance));
         }
 
@@ -115,9 +117,48 @@ public sealed class AdminService : IAdminService
             user.Email,
             user.Role,
             user.IsActive,
+            user.CreatedAt,
             walletBalance,
             portfolioSummary,
             recentTransactions);
+    }
+
+    public async Task<bool> SetActiveAsync(
+        Guid userId,
+        bool isActive,
+        CancellationToken cancellationToken = default)
+    {
+        var user = await _unitOfWork.Users.GetByIdAsync(userId, cancellationToken);
+
+        if (user is null)
+            return false;
+
+        user.IsActive  = isActive;
+        user.UpdatedAt = DateTime.UtcNow;
+
+        _unitOfWork.Users.Update(user);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return true;
+    }
+
+    public async Task<bool> SetRoleAsync(
+        Guid userId,
+        UserRole role,
+        CancellationToken cancellationToken = default)
+    {
+        var user = await _unitOfWork.Users.GetByIdAsync(userId, cancellationToken);
+
+        if (user is null)
+            return false;
+
+        user.Role      = role;
+        user.UpdatedAt = DateTime.UtcNow;
+
+        _unitOfWork.Users.Update(user);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return true;
     }
 }
 

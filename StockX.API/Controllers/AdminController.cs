@@ -48,5 +48,25 @@ public sealed class AdminController : ControllerBase
 
         return Ok(detail);
     }
+
+    [HttpPut("users/{userId:guid}/activate")]
+    public async Task<IActionResult> SetActive(
+        Guid userId,
+        [FromBody] SetActiveRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var found = await _adminService.SetActiveAsync(userId, request.IsActive, cancellationToken);
+        return found ? NoContent() : NotFound();
+    }
+
+    [HttpPut("users/{userId:guid}/role")]
+    public async Task<IActionResult> SetRole(
+        Guid userId,
+        [FromBody] SetRoleRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var found = await _adminService.SetRoleAsync(userId, request.Role, cancellationToken);
+        return found ? NoContent() : NotFound();
+    }
 }
 
